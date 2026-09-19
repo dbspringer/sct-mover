@@ -21,6 +21,7 @@ read_globals = {
   "CreateMinimalSliderFormatter",
   "DONE",
   "ERR_NOT_IN_COMBAT",
+  "GetLocale",
   "HideUIPanel",
   "InCombatLockdown",
   "MinimalSliderWithSteppersMixin",
@@ -33,3 +34,5 @@ read_globals = {
 }
 
 files["spec"] = { std = "+busted" }
+-- A translated sentence can't wrap.
+files["locales"] = { max_line_length = false }

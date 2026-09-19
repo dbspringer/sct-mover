@@ -9,6 +9,14 @@
 ## X-Website: https://github.com/dbspringer/sct-mover
 
 locales/enUS.lua
+locales/deDE.lua
+locales/frFR.lua
+locales/esES.lua
+locales/ptBR.lua
+locales/ruRU.lua
+locales/koKR.lua
+locales/zhCN.lua
+locales/zhTW.lua
 src/Offset.lua
 src/Override.lua
 src/SelfText.lua
