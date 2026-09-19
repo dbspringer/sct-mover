@@ -31,7 +31,7 @@ local function RegisterSettings()
         category,
         "SCTMOVER_TARGET_NUMBER_HEIGHT",
         Settings.VarType.Number,
-        L["Target number height"],
+        L["Target height"],
         defaultPercent,
         GetHeightPercent,
         SetHeightPercent
