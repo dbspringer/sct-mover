@@ -19,3 +19,5 @@ read_globals = {
   "RESET_TO_DEFAULT",
   "Settings",
 }
+
+files["spec"] = { std = "+busted" }

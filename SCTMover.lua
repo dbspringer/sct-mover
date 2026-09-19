@@ -1,5 +1,6 @@
 local addonName, ns = ...
 local L = ns.L
+local Offset = ns.Offset
 
 -- The engine draws the numbers above the target, so these CVars are the only
 -- control. The unit is a fraction of screen height.
@@ -10,26 +11,22 @@ local CRIT_CVAR = "WorldTextCritScreenY_v2"
 -- plain steps away from the game default. Whole steps also keep the step
 -- count exact.
 local MIN_STEPS, MAX_STEPS = -40, 40
-local FRACTION_PER_STEP = 0.005
 
 local function GetDefaultFraction(cvar)
     return tonumber(C_CVar.GetCVarDefault(cvar)) or 0
 end
 
 local function GetHeightSteps()
-    local offset = (tonumber(C_CVar.GetCVar(HIT_CVAR)) or 0) - GetDefaultFraction(HIT_CVAR)
-    return math.floor(offset / FRACTION_PER_STEP + 0.5)
+    local fraction = tonumber(C_CVar.GetCVar(HIT_CVAR)) or 0
+    return Offset.FractionToSteps(fraction, GetDefaultFraction(HIT_CVAR))
 end
 
 -- Nameplates hide crits the same way as normal hits, so both move together.
--- Each CVar gets the offset on top of its own default: the defaults are equal
--- in 16001, but retail has had a gap between them, and an equal value for
--- both would then pull crits down while normal hits go up.
 -- The CVar is the source of truth: the addon saves nothing.
 local function SetHeightSteps(steps)
-    local offset = steps * FRACTION_PER_STEP
-    C_CVar.SetCVar(HIT_CVAR, GetDefaultFraction(HIT_CVAR) + offset)
-    C_CVar.SetCVar(CRIT_CVAR, GetDefaultFraction(CRIT_CVAR) + offset)
+    local hit, crit = Offset.StepsToFractions(steps, GetDefaultFraction(HIT_CVAR), GetDefaultFraction(CRIT_CVAR))
+    C_CVar.SetCVar(HIT_CVAR, hit)
+    C_CVar.SetCVar(CRIT_CVAR, crit)
 end
 
 -- A canvas category, because the panel's list view comes with a Defaults
