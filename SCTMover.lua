@@ -2,6 +2,7 @@ local addonName, ns = ...
 local L = ns.L
 local Offset = ns.Offset
 local SelfText = ns.SelfText
+local MoveMode = ns.MoveMode
 
 -- The engine draws the Target Text, so these CVars are the only
 -- control. The unit is a fraction of screen height.
@@ -117,7 +118,7 @@ local function AddTargetTextSection(panel, anchor)
     end
 end
 
-local function AddSelfTextSection(panel, anchor)
+local function AddSelfTextSection(panel, anchor, openOptions)
     local header = AddSectionHeader(panel, anchor, L["Self text"])
     local description = AddBodyText(
         panel,
@@ -143,23 +144,37 @@ local function AddSelfTextSection(panel, anchor)
     -- The Offset is in Blizzard's reference units, a 1024 by 768 screen with
     -- the default start point at its centre, so these ranges cover the screen.
     local settings = SelfText.GetSettings()
+    local maxX, maxY = Offset.MAX_X, Offset.MAX_Y
     local horizontalLabel, horizontal = AddSliderRow(
-        panel, raised, 24, L["Horizontal"], -512, 512, L["Left"], L["Right"], settings.offsetX
+        panel, raised, 24, L["Horizontal"], -maxX, maxX, L["Left"], L["Right"], settings.offsetX
     )
     local verticalLabel, vertical = AddSliderRow(
-        panel, horizontalLabel, 40, L["Vertical"], -384, 384, L["Lower"], L["Higher"], settings.offsetY
+        panel, horizontalLabel, 40, L["Vertical"], -maxY, maxY, L["Lower"], L["Higher"], settings.offsetY
     )
     -- The checkbox sits 4 to the left of the text column.
     horizontalLabel:SetPoint("TOPLEFT", raised, "BOTTOMLEFT", 4, -24)
 
-    local function OnOffsetChanged()
-        SelfText.SetOffset(horizontal.Slider:GetValue(), vertical.Slider:GetValue())
-    end
-    horizontal:RegisterCallback("OnValueChanged", OnOffsetChanged, panel)
-    vertical:RegisterCallback("OnValueChanged", OnOffsetChanged, panel)
+    -- Each slider writes only its own direction. A refresh sets the sliders
+    -- one after the other, and the first change would otherwise save the
+    -- second slider's stale value over an Offset that the Marker set.
+    horizontal:RegisterCallback("OnValueChanged", function(_, offsetX)
+        SelfText.SetOffset(offsetX, SelfText.GetSettings().offsetY)
+    end, panel)
+    vertical:RegisterCallback("OnValueChanged", function(_, offsetY)
+        SelfText.SetOffset(SelfText.GetSettings().offsetX, offsetY)
+    end, panel)
+
+    local move = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+    move:SetPoint("TOPLEFT", verticalLabel, "BOTTOMLEFT", 0, -30)
+    move:SetText(L["Move"])
+    move:SetWidth(move:GetTextWidth() + 40)
+    move:SetScript("OnClick", function()
+        -- Done brings the player back here to fine-tune with the sliders.
+        MoveMode.Start(openOptions)
+    end)
 
     local reset = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    reset:SetPoint("TOPLEFT", verticalLabel, "BOTTOMLEFT", 0, -30)
+    reset:SetPoint("LEFT", move, "RIGHT", 10, 0)
     reset:SetText(L["Reset position"])
     reset:SetWidth(reset:GetTextWidth() + 40)
     reset:SetScript("OnClick", function()
@@ -167,13 +182,14 @@ local function AddSelfTextSection(panel, anchor)
         vertical:SetValue(0)
     end)
 
-    return reset, function()
+    return move, function()
         local enabled = SelfText.IsEnabled()
         local current = SelfText.GetSettings()
         horizontal:SetValue(current.offsetX)
         vertical:SetValue(current.offsetY)
         horizontal:SetEnabled(enabled)
         vertical:SetEnabled(enabled)
+        move:SetEnabled(enabled)
         reset:SetEnabled(enabled)
         local labelFont = enabled and "GameFontNormal" or "GameFontDisable"
         horizontalLabel:SetFontObject(labelFont)
@@ -199,7 +215,13 @@ local function RegisterSettings()
     header:SetText(title)
 
     local targetBottom, refreshTargetText = AddTargetTextSection(panel, header)
-    local _, refreshSelfText = AddSelfTextSection(panel, targetBottom)
+    -- The category exists only after the panel is complete.
+    local category
+    local function OpenOptions()
+        Settings.OpenToCategory(category:GetID())
+    end
+
+    local _, refreshSelfText = AddSelfTextSection(panel, targetBottom, OpenOptions)
 
     -- The panel calls this each time it shows the category.
     panel.OnRefresh = function()
@@ -207,7 +229,7 @@ local function RegisterSettings()
         refreshSelfText()
     end
 
-    local category = Settings.RegisterCanvasLayoutCategory(panel, title)
+    category = Settings.RegisterCanvasLayoutCategory(panel, title)
     Settings.RegisterAddOnCategory(category)
     return category, title
 end
@@ -223,12 +245,18 @@ frame:SetScript("OnEvent", function()
 
     SLASH_SCTMOVER1 = "/sctmover"
     SLASH_SCTMOVER2 = "/sctm"
-    SlashCmdList.SCTMOVER = function()
-        -- The game blocks addons from opening the options in combat.
-        if InCombatLockdown() then
+    -- The command words stay English in every locale, so macros travel.
+    SlashCmdList.SCTMOVER = function(message)
+        local word = message:lower():match("^%s*(%S*)")
+        if word == "move" then
+            MoveMode.Toggle()
+        elseif word ~= "" then
+            print(("%s: %s"):format(title, L["/sctm opens the options, and /sctm move lets you drag the self text."]))
+        elseif InCombatLockdown() then
+            -- The game blocks addons from opening the options in combat.
             UIErrorsFrame:AddMessage(ERR_NOT_IN_COMBAT, 1, 0.1, 0.1)
-            return
+        else
+            Settings.OpenToCategory(category:GetID())
         end
-        Settings.OpenToCategory(category:GetID())
     end
 end)
