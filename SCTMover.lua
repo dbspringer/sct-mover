@@ -6,16 +6,23 @@ local L = ns.L
 local HIT_CVAR = "WorldTextScreenY_v2"
 local CRIT_CVAR = "WorldTextCritScreenY_v2"
 
--- The slider works in percent, so the step count is exact.
-local MIN_PERCENT, MAX_PERCENT, STEP_PERCENT = -20, 20, 0.5
+-- A fraction of screen height means little to a player, so the slider shows
+-- plain steps with 0 as the game default. Whole steps also keep the step
+-- count exact.
+local MIN_STEPS, MAX_STEPS = -40, 40
+local FRACTION_PER_STEP = 0.005
 
-local function GetHeightPercent()
-    return (tonumber(C_CVar.GetCVar(HIT_CVAR)) or 0) * 100
+local function FractionToSteps(fraction)
+    return math.floor((tonumber(fraction) or 0) / FRACTION_PER_STEP + 0.5)
+end
+
+local function GetHeightSteps()
+    return FractionToSteps(C_CVar.GetCVar(HIT_CVAR))
 end
 
 -- Nameplates hide crits the same way as normal hits, so both move together.
-local function SetHeightPercent(percent)
-    local fraction = percent / 100
+local function SetHeightSteps(steps)
+    local fraction = steps * FRACTION_PER_STEP
     C_CVar.SetCVar(HIT_CVAR, fraction)
     C_CVar.SetCVar(CRIT_CVAR, fraction)
 end
@@ -26,21 +33,22 @@ local function RegisterSettings()
 
     -- The CVar is the source of truth: the addon saves nothing, and a reset
     -- restores the default that the client reports.
-    local defaultPercent = (tonumber(C_CVar.GetCVarDefault(HIT_CVAR)) or 0) * 100
+    local defaultSteps = FractionToSteps(C_CVar.GetCVarDefault(HIT_CVAR))
     local setting = Settings.RegisterProxySetting(
         category,
         "SCTMOVER_TARGET_NUMBER_HEIGHT",
         Settings.VarType.Number,
         L["Target height"],
-        defaultPercent,
-        GetHeightPercent,
-        SetHeightPercent
+        defaultSteps,
+        GetHeightSteps,
+        SetHeightSteps
     )
 
-    local options = Settings.CreateSliderOptions(MIN_PERCENT, MAX_PERCENT, STEP_PERCENT)
-    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-        return L["%.1f%%"]:format(value)
-    end)
+    local options = Settings.CreateSliderOptions(MIN_STEPS, MAX_STEPS, 1)
+    local Label = MinimalSliderWithSteppersMixin.Label
+    options:SetLabelFormatter(Label.Right)
+    options:SetLabelFormatter(Label.Min, L["Lower"])
+    options:SetLabelFormatter(Label.Max, L["Higher"])
     Settings.CreateSlider(
         category,
         setting,
