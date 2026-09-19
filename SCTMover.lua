@@ -114,8 +114,13 @@ local function AddSelfTextSection(panel, anchor)
         L["The text that scrolls near your character: damage you take, heals you receive, and similar."]
     )
 
+    -- The note sits above the controls, so the player reads the reason
+    -- before the grey checkbox. It takes no room while it's hidden.
+    -- The addon leaves the game's own Self Text switch alone.
+    local disabledNote = AddBodyText(panel, description, L["Self text is off in the game options."])
+    disabledNote:SetFontObject("GameFontRed")
+
     local raised = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
-    raised:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -4, -16)
     raised:SetScript("OnClick", function(self)
         SelfText.SetRaised(self:GetChecked())
     end)
@@ -124,12 +129,10 @@ local function AddSelfTextSection(panel, anchor)
     raisedLabel:SetPoint("LEFT", raised, "RIGHT", 4, 0)
     raisedLabel:SetText(L["Show self text above other UI elements"])
 
-    -- The addon leaves the game's own Self Text switch alone.
-    local disabledNote = AddBodyText(panel, raised, L["Self text is off in the game options."])
-    disabledNote:SetFontObject("GameFontRed")
-
-    return disabledNote, function()
+    return raised, function()
         local enabled = SelfText.IsEnabled()
+        raised:ClearAllPoints()
+        raised:SetPoint("TOPLEFT", enabled and description or disabledNote, "BOTTOMLEFT", -4, -16)
         raised:SetChecked(SelfText.GetSettings().raised)
         raised:SetEnabled(enabled)
         raisedLabel:SetFontObject(enabled and "GameFontHighlight" or "GameFontDisable")
