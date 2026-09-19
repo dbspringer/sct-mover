@@ -7,7 +7,7 @@ A small WoW: Forever addon that moves combat text out from behind your UI. It li
 Open the game options and pick SCT Mover under AddOns. `/sctmover` (or `/sctm`) takes you straight there.
 
 - **Target text.** Drag the "Target height" slider to lift or lower the text above your target (damage, heals, misses). The reset button below it puts it back where the game had it. This only changes two game settings (`WorldTextScreenY_v2` and `WorldTextCritScreenY_v2`), so your choice stays even if you turn the addon off.
-- **Self text.** Tick "Show self text above other UI elements" if other parts of your UI cover the text that scrolls near your character.
+- **Self text.** Tick "Show self text above other UI elements" if other parts of your UI cover the text that scrolls near your character. The "Horizontal" and "Vertical" sliders move where that text starts, and "Reset position" puts it back.
 
 ## Develop
 

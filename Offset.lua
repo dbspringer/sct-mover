@@ -18,3 +18,18 @@ end
 function Offset.FractionToSteps(fraction, default)
     return math.floor((fraction - default) / Offset.FRACTION_PER_STEP + 0.5)
 end
+
+-- The Self Text Offset is in Blizzard's reference units (a 1024 by 768 screen),
+-- and Blizzard's two scales turn it into the units of the real screen. The
+-- start and the end move together, so the float mode keeps the path's shape.
+-- Returns a new table: the caller keeps Blizzard's own locations as the base,
+-- and a second shift can't stack on the first.
+function Offset.ShiftTextLocations(base, offsetX, offsetY, scaleX, scaleY)
+    local shiftX, shiftY = offsetX * scaleX, offsetY * scaleY
+    return {
+        startX = base.startX + shiftX,
+        startY = base.startY + shiftY,
+        endX = base.endX + shiftX,
+        endY = base.endY + shiftY,
+    }
+end
