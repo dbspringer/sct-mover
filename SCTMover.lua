@@ -1,6 +1,7 @@
 local addonName, ns = ...
 local L = ns.L
 local Offset = ns.Offset
+local SelfText = ns.SelfText
 
 -- The engine draws the numbers above the target, so these CVars are the only
 -- control. The unit is a fraction of screen height.
@@ -29,27 +30,45 @@ local function SetHeightSteps(steps)
     C_CVar.SetCVar(CRIT_CVAR, crit)
 end
 
--- A canvas category, because the panel's list view comes with a Defaults
--- button that also offers to reset every game setting. The canvas view has no
--- such button, so the panel carries its own reset for this one slider.
-local function RegisterSettings()
-    local title = C_AddOns.GetAddOnMetadata(addonName, "Title")
-    local panel = CreateFrame("Frame")
+local function HasTargetNumberCVars()
+    -- Blizzard renamed these CVars once already (the _v2 suffix).
+    return C_CVar.GetCVar(HIT_CVAR) ~= nil and C_CVar.GetCVar(CRIT_CVAR) ~= nil
+end
 
-    local header = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightHuge")
-    header:SetPoint("TOPLEFT", 7, -22)
-    header:SetText(title)
+local TARGET_NUMBERS_MISSING = L["This game client does not have the settings that move target numbers."]
 
-    local description = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    description:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -16)
-    description:SetPoint("RIGHT", -20, 0)
-    description:SetJustifyH("LEFT")
-    description:SetText(
+local function AddSectionHeader(panel, anchor, text)
+    local header = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    header:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -30)
+    header:SetText(text)
+    return header
+end
+
+local function AddBodyText(panel, anchor, text)
+    local body = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    body:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -10)
+    body:SetPoint("RIGHT", -20, 0)
+    body:SetJustifyH("LEFT")
+    body:SetText(text)
+    return body
+end
+
+-- Returns the lowest region of the section and a function that reads the
+-- game state into the controls again.
+local function AddTargetNumbersSection(panel, anchor)
+    local header = AddSectionHeader(panel, anchor, L["Target numbers"])
+    if not HasTargetNumberCVars() then
+        return AddBodyText(panel, header, TARGET_NUMBERS_MISSING), nop
+    end
+
+    local description = AddBodyText(
+        panel,
+        header,
         L["Moves the damage and healing numbers above your target up or down. Use it when nameplates hide the numbers."]
     )
 
     local label = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    label:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -40)
+    label:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -30)
     label:SetText(L["Target height"])
 
     local Label = MinimalSliderWithSteppersMixin.Label
@@ -81,26 +100,76 @@ local function RegisterSettings()
     end)
 
     -- The CVar is the source of truth, and another addon or /console can
-    -- change it, so read it again each time the panel shows the category.
-    panel.OnRefresh = function()
+    -- change it.
+    return reset, function()
         slider:SetValue(GetHeightSteps())
+    end
+end
+
+local function AddSelfTextSection(panel, anchor)
+    local header = AddSectionHeader(panel, anchor, L["Self text"])
+    local description = AddBodyText(
+        panel,
+        header,
+        L["The text that scrolls near your character: damage you take, heals you receive, and similar."]
+    )
+
+    local raised = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
+    raised:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -4, -16)
+    raised:SetScript("OnClick", function(self)
+        SelfText.SetRaised(self:GetChecked())
+    end)
+
+    local raisedLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    raisedLabel:SetPoint("LEFT", raised, "RIGHT", 4, 0)
+    raisedLabel:SetText(L["Show self text above other UI elements"])
+
+    -- The addon leaves the game's own Self Text switch alone.
+    local disabledNote = AddBodyText(panel, raised, L["Self text is off in the game options."])
+    disabledNote:SetFontObject("GameFontRed")
+
+    return disabledNote, function()
+        local enabled = SelfText.IsEnabled()
+        raised:SetChecked(SelfText.GetSettings().raised)
+        raised:SetEnabled(enabled)
+        raisedLabel:SetFontObject(enabled and "GameFontHighlight" or "GameFontDisable")
+        disabledNote:SetShown(not enabled)
+    end
+end
+
+-- A canvas category, because the panel's list view comes with a Defaults
+-- button that also offers to reset every game setting. The canvas view has no
+-- such button, so each section carries its own reset where it needs one.
+local function RegisterSettings()
+    local title = C_AddOns.GetAddOnMetadata(addonName, "Title")
+    local panel = CreateFrame("Frame")
+
+    local header = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightHuge")
+    header:SetPoint("TOPLEFT", 7, -22)
+    header:SetText(title)
+
+    local targetBottom, refreshTargetNumbers = AddTargetNumbersSection(panel, header)
+    local _, refreshSelfText = AddSelfTextSection(panel, targetBottom)
+
+    -- The panel calls this each time it shows the category.
+    panel.OnRefresh = function()
+        refreshTargetNumbers()
+        refreshSelfText()
     end
 
     local category = Settings.RegisterCanvasLayoutCategory(panel, title)
     Settings.RegisterAddOnCategory(category)
-    return category
+    return category, title
 end
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:SetScript("OnEvent", function()
-    -- Blizzard renamed these CVars once already (the _v2 suffix).
-    if C_CVar.GetCVar(HIT_CVAR) == nil or C_CVar.GetCVar(CRIT_CVAR) == nil then
-        print(L["SCT Mover: this game client does not have the settings that move target numbers."])
-        return
-    end
+    local category, title = RegisterSettings()
 
-    local category = RegisterSettings()
+    if not HasTargetNumberCVars() then
+        print(("%s: %s"):format(title, TARGET_NUMBERS_MISSING))
+    end
 
     SLASH_SCTMOVER1 = "/sctmover"
     SLASH_SCTMOVER2 = "/sctm"
