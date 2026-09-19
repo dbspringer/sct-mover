@@ -31,3 +31,4 @@ L["Move"] = "Mover"
 L["Self text starts here"] = "O texto próprio começa aqui"
 L["/sctm opens the options, and /sctm move lets you drag the self text."] =
     "/sctm abre as opções, e /sctm move permite arrastar o texto próprio."
+L["Version %s | Locale: %s"] = "Versão %s | Idioma: %s"
