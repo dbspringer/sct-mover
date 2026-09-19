@@ -3,7 +3,7 @@ local L = ns.L
 local Offset = ns.Offset
 local SelfText = ns.SelfText
 
--- The engine draws the numbers above the target, so these CVars are the only
+-- The engine draws the Target Text, so these CVars are the only
 -- control. The unit is a fraction of screen height.
 local HIT_CVAR = "WorldTextScreenY_v2"
 local CRIT_CVAR = "WorldTextCritScreenY_v2"
@@ -30,12 +30,12 @@ local function SetHeightSteps(steps)
     C_CVar.SetCVar(CRIT_CVAR, crit)
 end
 
-local function HasTargetNumberCVars()
+local function HasTargetTextCVars()
     -- Blizzard renamed these CVars once already (the _v2 suffix).
     return C_CVar.GetCVar(HIT_CVAR) ~= nil and C_CVar.GetCVar(CRIT_CVAR) ~= nil
 end
 
-local TARGET_NUMBERS_MISSING = L["This game client does not have the settings that move target numbers."]
+local TARGET_TEXT_MISSING = L["This game client does not have the settings that move target text."]
 
 local function AddSectionHeader(panel, anchor, text)
     local header = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
@@ -55,16 +55,16 @@ end
 
 -- Returns the lowest region of the section and a function that reads the
 -- game state into the controls again.
-local function AddTargetNumbersSection(panel, anchor)
-    local header = AddSectionHeader(panel, anchor, L["Target numbers"])
-    if not HasTargetNumberCVars() then
-        return AddBodyText(panel, header, TARGET_NUMBERS_MISSING), nop
+local function AddTargetTextSection(panel, anchor)
+    local header = AddSectionHeader(panel, anchor, L["Target text"])
+    if not HasTargetTextCVars() then
+        return AddBodyText(panel, header, TARGET_TEXT_MISSING), nop
     end
 
     local description = AddBodyText(
         panel,
         header,
-        L["Moves the damage and healing numbers above your target up or down. Use it when nameplates hide the numbers."]
+        L["The text above your target: damage you deal, heals, misses, and similar. Lift it when nameplates hide it."]
     )
 
     local label = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -151,12 +151,12 @@ local function RegisterSettings()
     header:SetPoint("TOPLEFT", 7, -22)
     header:SetText(title)
 
-    local targetBottom, refreshTargetNumbers = AddTargetNumbersSection(panel, header)
+    local targetBottom, refreshTargetText = AddTargetTextSection(panel, header)
     local _, refreshSelfText = AddSelfTextSection(panel, targetBottom)
 
     -- The panel calls this each time it shows the category.
     panel.OnRefresh = function()
-        refreshTargetNumbers()
+        refreshTargetText()
         refreshSelfText()
     end
 
@@ -170,8 +170,8 @@ frame:RegisterEvent("PLAYER_LOGIN")
 frame:SetScript("OnEvent", function()
     local category, title = RegisterSettings()
 
-    if not HasTargetNumberCVars() then
-        print(("%s: %s"):format(title, TARGET_NUMBERS_MISSING))
+    if not HasTargetTextCVars() then
+        print(("%s: %s"):format(title, TARGET_TEXT_MISSING))
     end
 
     SLASH_SCTMOVER1 = "/sctmover"
