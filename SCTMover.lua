@@ -53,6 +53,27 @@ local function AddBodyText(panel, anchor, text)
     return body
 end
 
+-- A label with a slider at a fixed distance, so the sliders of all rows line
+-- up. The slider shows its value, and a word at each end says what it does.
+local SLIDER_LEFT = 160
+
+local function AddSliderRow(panel, anchor, gap, text, min, max, minText, maxText, value)
+    local label = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    label:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -gap)
+    label:SetText(text)
+
+    local Label = MinimalSliderWithSteppersMixin.Label
+    local slider = CreateFrame("Frame", nil, panel, "MinimalSliderWithSteppersTemplate")
+    slider:SetPoint("LEFT", label, "LEFT", SLIDER_LEFT, 0)
+    slider:SetWidth(250)
+    slider:Init(value, min, max, max - min, {
+        [Label.Right] = CreateMinimalSliderFormatter(Label.Right),
+        [Label.Min] = CreateMinimalSliderFormatter(Label.Min, minText),
+        [Label.Max] = CreateMinimalSliderFormatter(Label.Max, maxText),
+    })
+    return label, slider
+end
+
 -- Returns the lowest region of the section and a function that reads the
 -- game state into the controls again.
 local function AddTargetTextSection(panel, anchor)
@@ -67,19 +88,9 @@ local function AddTargetTextSection(panel, anchor)
         L["The text above your target: damage you deal, heals, misses, and similar. Lift it when nameplates hide it."]
     )
 
-    local label = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    label:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -30)
-    label:SetText(L["Target height"])
-
-    local Label = MinimalSliderWithSteppersMixin.Label
-    local slider = CreateFrame("Frame", nil, panel, "MinimalSliderWithSteppersTemplate")
-    slider:SetPoint("LEFT", label, "RIGHT", 40, 0)
-    slider:SetWidth(250)
-    slider:Init(GetHeightSteps(), MIN_STEPS, MAX_STEPS, MAX_STEPS - MIN_STEPS, {
-        [Label.Right] = CreateMinimalSliderFormatter(Label.Right),
-        [Label.Min] = CreateMinimalSliderFormatter(Label.Min, L["Lower"]),
-        [Label.Max] = CreateMinimalSliderFormatter(Label.Max, L["Higher"]),
-    })
+    local label, slider = AddSliderRow(
+        panel, description, 30, L["Target height"], MIN_STEPS, MAX_STEPS, L["Lower"], L["Higher"], GetHeightSteps()
+    )
     slider:RegisterCallback("OnValueChanged", function(_, steps)
         -- A refresh also lands here. Skip the write then, so a CVar value
         -- between two steps stays as it is until the player moves the slider.
@@ -90,7 +101,7 @@ local function AddTargetTextSection(panel, anchor)
 
     local reset = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
     reset:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -30)
-    reset:SetText(RESET_TO_DEFAULT)
+    reset:SetText(L["Reset position"])
     reset:SetWidth(reset:GetTextWidth() + 40)
     reset:SetScript("OnClick", function()
         -- Write first. A slider that already shows 0 fires no change, and the
@@ -129,11 +140,47 @@ local function AddSelfTextSection(panel, anchor)
     raisedLabel:SetPoint("LEFT", raised, "RIGHT", 4, 0)
     raisedLabel:SetText(L["Show self text above other UI elements"])
 
-    return raised, function()
+    -- The Offset is in Blizzard's reference units, a 1024 by 768 screen with
+    -- the default start point at its centre, so these ranges cover the screen.
+    local settings = SelfText.GetSettings()
+    local horizontalLabel, horizontal = AddSliderRow(
+        panel, raised, 24, L["Horizontal"], -512, 512, L["Left"], L["Right"], settings.offsetX
+    )
+    local verticalLabel, vertical = AddSliderRow(
+        panel, horizontalLabel, 40, L["Vertical"], -384, 384, L["Lower"], L["Higher"], settings.offsetY
+    )
+    -- The checkbox sits 4 to the left of the text column.
+    horizontalLabel:SetPoint("TOPLEFT", raised, "BOTTOMLEFT", 4, -24)
+
+    local function OnOffsetChanged()
+        SelfText.SetOffset(horizontal.Slider:GetValue(), vertical.Slider:GetValue())
+    end
+    horizontal:RegisterCallback("OnValueChanged", OnOffsetChanged, panel)
+    vertical:RegisterCallback("OnValueChanged", OnOffsetChanged, panel)
+
+    local reset = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+    reset:SetPoint("TOPLEFT", verticalLabel, "BOTTOMLEFT", 0, -30)
+    reset:SetText(L["Reset position"])
+    reset:SetWidth(reset:GetTextWidth() + 40)
+    reset:SetScript("OnClick", function()
+        horizontal:SetValue(0)
+        vertical:SetValue(0)
+    end)
+
+    return reset, function()
         local enabled = SelfText.IsEnabled()
+        local current = SelfText.GetSettings()
+        horizontal:SetValue(current.offsetX)
+        vertical:SetValue(current.offsetY)
+        horizontal:SetEnabled(enabled)
+        vertical:SetEnabled(enabled)
+        reset:SetEnabled(enabled)
+        local labelFont = enabled and "GameFontNormal" or "GameFontDisable"
+        horizontalLabel:SetFontObject(labelFont)
+        verticalLabel:SetFontObject(labelFont)
         raised:ClearAllPoints()
         raised:SetPoint("TOPLEFT", enabled and description or disabledNote, "BOTTOMLEFT", -4, -16)
-        raised:SetChecked(SelfText.GetSettings().raised)
+        raised:SetChecked(current.raised)
         raised:SetEnabled(enabled)
         raisedLabel:SetFontObject(enabled and "GameFontHighlight" or "GameFontDisable")
         disabledNote:SetShown(not enabled)

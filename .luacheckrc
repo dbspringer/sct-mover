@@ -20,9 +20,9 @@ read_globals = {
   "ERR_NOT_IN_COMBAT",
   "InCombatLockdown",
   "MinimalSliderWithSteppersMixin",
-  "RESET_TO_DEFAULT",
   "Settings",
   "UIErrorsFrame",
+  "WorldFrame",
   "nop",
 }
 

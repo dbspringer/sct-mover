@@ -26,3 +26,18 @@ describe("Target Text offset", function()
         end
     end)
 end)
+
+describe("Self Text offset", function()
+    it("scales with the screen, so the text holds its place at another resolution", function()
+        -- A 2048 by 1536 screen doubles both of Blizzard's scales.
+        local x, y = Offset.ToScreenUnits(100, -50, 2, 2)
+        assert.are.equal(200, x)
+        assert.are.equal(-100, y)
+    end)
+
+    it("scales each direction by its own factor, for a screen that isn't 4 by 3", function()
+        local x, y = Offset.ToScreenUnits(100, 100, 2.5, 1.875)
+        assert.are.equal(250, x)
+        assert.are.equal(187.5, y)
+    end)
+end)

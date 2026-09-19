@@ -18,3 +18,10 @@ end
 function Offset.FractionToSteps(fraction, default)
     return math.floor((fraction - default) / Offset.FRACTION_PER_STEP + 0.5)
 end
+
+-- The Self Text Offset is in Blizzard's reference units (a 1024 by 768 screen).
+-- The two scales turn it into the units of the real screen, so the text holds
+-- its place at another resolution.
+function Offset.ToScreenUnits(offsetX, offsetY, scaleX, scaleY)
+    return offsetX * scaleX, offsetY * scaleY
+end
