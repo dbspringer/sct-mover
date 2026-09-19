@@ -12,4 +12,5 @@ The addon only changes two game settings (`WorldTextScreenY_v2` and `WorldTextCr
 
 Symlink the repo into the Forever AddOns folder as `SCTMover`
 (`_classic_beta_/Interface/AddOns`). Lint with `luacheck .` and package with
-the BigWigs packager; a `v*` tag cuts a release.
+the BigWigs packager. Releases are plain numbers that go up by one each time
+(`1`, `2`, `3`), and pushing that number as a tag cuts the release.
