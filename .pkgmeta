@@ -6,4 +6,5 @@ ignore:
   - .luacheckrc
   - .busted
   - spec
+  - export.sh
   - README.md
