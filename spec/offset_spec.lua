@@ -1,5 +1,5 @@
 local ns = {}
-assert(loadfile("Offset.lua"))("SCTMover", ns)
+assert(loadfile("src/Offset.lua"))("SCTMover", ns)
 local Offset = ns.Offset
 
 describe("Target Text offset", function()
