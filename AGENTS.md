@@ -24,3 +24,8 @@ Plans, research, and other working notes live in the Obsidian vault, under `SCT 
 - Use the `obsidian` CLI; the app must be open. `obsidian create path="SCT Mover/<Topic> Research.md" content="..."`, and also `read`, `append`, `search`.
 - Name notes `<Topic> Research.md` or `<Topic> Plan.md`, and link each new note from the index note `SCT Mover/SCT Mover.md`.
 - Read the index note before you plan work. The vault is at `~/Documents/Obsidian Vault`.
+
+## Conventions
+
+- Display text goes through `ns.L[...]` or a Blizzard global string, never a literal. enUS is the key, so a missing translation shows English. The first code that shows text adds the scaffold: `locales/enUS.lua`, loaded first in the TOC, sets `ns.L` to a table whose `__index` returns the key. A translation lives in `locales/<locale>.lua`, returns early unless `GetLocale()` matches, then assigns into `ns.L`.
+- Text that people read (PR titles and descriptions, commit messages, issue comments, the README) goes through the `/writing-style` skill first. Code comments and the docs under `docs/` keep a neutral, technical voice. Chat replies in the CLI are out of scope.
