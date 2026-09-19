@@ -7,7 +7,7 @@ Forever is the `_classic_beta_` client (1.60.x, Interface 16001).
 
 ### Issue tracker
 
-Issues are GitHub Issues on dbspringer/sct-mover, driven with the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues are GitHub Issues on dbspringer/sct-mover, driven with the `gh` CLI. See `docs/agents/issue-tracker.md`. Issues are for problems that users find. Planned work and TODOs go in the vault (see Plans and research), never in an issue. This overrides any skill that says to publish work to the issue tracker.
 
 ### Triage labels
 
@@ -23,6 +23,7 @@ Plans, research, and other working notes live in the Obsidian vault, under `SCT 
 
 - Use the `obsidian` CLI; the app must be open. `obsidian create path="SCT Mover/<Topic> Research.md" content="..."`, and also `read`, `append`, `search`.
 - Name notes `<Topic> Research.md` or `<Topic> Plan.md`, and link each new note from the index note `SCT Mover/SCT Mover.md`.
+- Track TODOs and planned work in the Backlog section of the index note, with a link to the plan note when one exists.
 - Read the index note before you plan work. The vault is at `~/Documents/Obsidian Vault`.
 
 ## Conventions
