@@ -12,3 +12,6 @@ ignore:
   - spec
   - export.sh
   - README.md
+  - AGENTS.md
+  - CLAUDE.md
+  - CONTEXT.md

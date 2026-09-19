@@ -3,10 +3,24 @@
 ## Notes: Moves combat text out from behind nameplates and other UI elements.
 ## Author: KidMoxie
 ## Version: @project-version@
+## IconTexture: Interface\CURSOR\UI-Cursor-Move
+## Category: Combat
+## Category-enUS: Combat
+## Category-deDE: Kampf
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-frFR: Combat
+## Category-itIT: Combattimento
+## Category-koKR: 전투
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
 ## SavedVariables: SCTMoverDB
 ## SavedVariablesPerCharacter: SCTMoverCharDB
 ## X-License: MIT
 ## X-Website: https://github.com/dbspringer/sct-mover
+## X-Curse-Project-ID: 1703290
 
 locales/enUS.lua
 locales/deDE.lua
