@@ -7,25 +7,29 @@ local HIT_CVAR = "WorldTextScreenY_v2"
 local CRIT_CVAR = "WorldTextCritScreenY_v2"
 
 -- A fraction of screen height means little to a player, so the slider shows
--- plain steps with 0 as the game default. Whole steps also keep the step
+-- plain steps away from the game default. Whole steps also keep the step
 -- count exact.
 local MIN_STEPS, MAX_STEPS = -40, 40
 local FRACTION_PER_STEP = 0.005
 
-local function FractionToSteps(fraction)
-    return math.floor((tonumber(fraction) or 0) / FRACTION_PER_STEP + 0.5)
+local function GetDefaultFraction(cvar)
+    return tonumber(C_CVar.GetCVarDefault(cvar)) or 0
 end
 
 local function GetHeightSteps()
-    return FractionToSteps(C_CVar.GetCVar(HIT_CVAR))
+    local offset = (tonumber(C_CVar.GetCVar(HIT_CVAR)) or 0) - GetDefaultFraction(HIT_CVAR)
+    return math.floor(offset / FRACTION_PER_STEP + 0.5)
 end
 
 -- Nameplates hide crits the same way as normal hits, so both move together.
+-- Each CVar gets the offset on top of its own default: the defaults are equal
+-- in 16001, but retail has had a gap between them, and an equal value for
+-- both would then pull crits down while normal hits go up.
 -- The CVar is the source of truth: the addon saves nothing.
 local function SetHeightSteps(steps)
-    local fraction = steps * FRACTION_PER_STEP
-    C_CVar.SetCVar(HIT_CVAR, fraction)
-    C_CVar.SetCVar(CRIT_CVAR, fraction)
+    local offset = steps * FRACTION_PER_STEP
+    C_CVar.SetCVar(HIT_CVAR, GetDefaultFraction(HIT_CVAR) + offset)
+    C_CVar.SetCVar(CRIT_CVAR, GetDefaultFraction(CRIT_CVAR) + offset)
 end
 
 -- A canvas category, because the panel's list view comes with a Defaults
@@ -73,7 +77,10 @@ local function RegisterSettings()
     reset:SetText(RESET_TO_DEFAULT)
     reset:SetWidth(reset:GetTextWidth() + 40)
     reset:SetScript("OnClick", function()
-        slider:SetValue(FractionToSteps(C_CVar.GetCVarDefault(HIT_CVAR)))
+        -- Write first. A slider that already shows 0 fires no change, and the
+        -- CVars can still hold a value between two steps.
+        SetHeightSteps(0)
+        slider:SetValue(0)
     end)
 
     -- The CVar is the source of truth, and another addon or /console can
