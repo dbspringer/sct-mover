@@ -21,48 +21,68 @@ local function GetHeightSteps()
 end
 
 -- Nameplates hide crits the same way as normal hits, so both move together.
+-- The CVar is the source of truth: the addon saves nothing.
 local function SetHeightSteps(steps)
     local fraction = steps * FRACTION_PER_STEP
     C_CVar.SetCVar(HIT_CVAR, fraction)
     C_CVar.SetCVar(CRIT_CVAR, fraction)
 end
 
+-- A canvas category, because the panel's list view comes with a Defaults
+-- button that also offers to reset every game setting. The canvas view has no
+-- such button, so the panel carries its own reset for this one slider.
 local function RegisterSettings()
     local title = C_AddOns.GetAddOnMetadata(addonName, "Title")
-    local category, layout = Settings.RegisterVerticalLayoutCategory(title)
+    local panel = CreateFrame("Frame")
 
-    -- The CVar is the source of truth: the addon saves nothing, and a reset
-    -- restores the default that the client reports.
-    local defaultSteps = FractionToSteps(C_CVar.GetCVarDefault(HIT_CVAR))
-    local setting = Settings.RegisterProxySetting(
-        category,
-        "SCTMOVER_TARGET_NUMBER_HEIGHT",
-        Settings.VarType.Number,
-        L["Target height"],
-        defaultSteps,
-        GetHeightSteps,
-        SetHeightSteps
-    )
+    local header = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightHuge")
+    header:SetPoint("TOPLEFT", 7, -22)
+    header:SetText(title)
 
-    local options = Settings.CreateSliderOptions(MIN_STEPS, MAX_STEPS, 1)
-    local Label = MinimalSliderWithSteppersMixin.Label
-    options:SetLabelFormatter(Label.Right)
-    options:SetLabelFormatter(Label.Min, L["Lower"])
-    options:SetLabelFormatter(Label.Max, L["Higher"])
-    Settings.CreateSlider(
-        category,
-        setting,
-        options,
+    local description = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    description:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -16)
+    description:SetPoint("RIGHT", -20, 0)
+    description:SetJustifyH("LEFT")
+    description:SetText(
         L["Moves the damage and healing numbers above your target up or down. Use it when nameplates hide the numbers."]
     )
 
-    -- The panel's own Defaults button also offers to reset every game
-    -- setting, so the category has a reset that touches only this slider.
-    local addSearchTags = false
-    layout:AddInitializer(CreateSettingsButtonInitializer("", RESET_TO_DEFAULT, function()
-        setting:SetValueToDefault()
-    end, nil, addSearchTags))
+    local label = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    label:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -40)
+    label:SetText(L["Target height"])
 
+    local Label = MinimalSliderWithSteppersMixin.Label
+    local slider = CreateFrame("Frame", nil, panel, "MinimalSliderWithSteppersTemplate")
+    slider:SetPoint("LEFT", label, "RIGHT", 40, 0)
+    slider:SetWidth(250)
+    slider:Init(GetHeightSteps(), MIN_STEPS, MAX_STEPS, MAX_STEPS - MIN_STEPS, {
+        [Label.Right] = CreateMinimalSliderFormatter(Label.Right),
+        [Label.Min] = CreateMinimalSliderFormatter(Label.Min, L["Lower"]),
+        [Label.Max] = CreateMinimalSliderFormatter(Label.Max, L["Higher"]),
+    })
+    slider:RegisterCallback("OnValueChanged", function(_, steps)
+        -- A refresh also lands here. Skip the write then, so a CVar value
+        -- between two steps stays as it is until the player moves the slider.
+        if steps ~= GetHeightSteps() then
+            SetHeightSteps(steps)
+        end
+    end, panel)
+
+    local reset = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+    reset:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -30)
+    reset:SetText(RESET_TO_DEFAULT)
+    reset:SetWidth(reset:GetTextWidth() + 40)
+    reset:SetScript("OnClick", function()
+        slider:SetValue(FractionToSteps(C_CVar.GetCVarDefault(HIT_CVAR)))
+    end)
+
+    -- The CVar is the source of truth, and another addon or /console can
+    -- change it, so read it again each time the panel shows the category.
+    panel.OnRefresh = function()
+        slider:SetValue(GetHeightSteps())
+    end
+
+    local category = Settings.RegisterCanvasLayoutCategory(panel, title)
     Settings.RegisterAddOnCategory(category)
     return category
 end
