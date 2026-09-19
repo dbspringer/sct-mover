@@ -1,0 +1,8 @@
+## Interface: 16001
+## Title: SCT Mover
+## Notes: Moves the position of the scrolling combat text in WoW: Forever.
+## Author: KidMoxie
+## Version: @project-version@
+## SavedVariables: SCTMoverDB
+## X-License: MIT
+## X-Website: https://github.com/dbspringer/sct-mover

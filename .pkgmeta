@@ -1,0 +1,7 @@
+package-as: SCTMover
+
+ignore:
+  - docs
+  - .github
+  - .luacheckrc
+  - README.md
