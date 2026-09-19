@@ -20,3 +20,7 @@ Symlink the repo into the Forever AddOns folder as `SCTMover`
 `busted` (on Lua 5.1 or LuaJIT, since that's what WoW runs), and package with
 the BigWigs packager. Releases are plain numbers that go up by one each time
 (`1`, `2`, `3`), and pushing that number as a tag cuts the release.
+
+Until the release workflow has CurseForge and Wago keys, `./export.sh <version> [destination]`
+builds the same zip by hand, for example `./export.sh 1 ~/Desktop`. It ships
+exactly the files the TOC loads, plus the license.
