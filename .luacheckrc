@@ -15,9 +15,12 @@ read_globals = {
   "C_CVar",
   "CreateFrame",
   "CreateMinimalSliderFormatter",
+  "ERR_NOT_IN_COMBAT",
+  "InCombatLockdown",
   "MinimalSliderWithSteppersMixin",
   "RESET_TO_DEFAULT",
   "Settings",
+  "UIErrorsFrame",
 }
 
 files["spec"] = { std = "+busted" }

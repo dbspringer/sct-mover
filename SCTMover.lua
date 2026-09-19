@@ -105,6 +105,11 @@ frame:SetScript("OnEvent", function()
     SLASH_SCTMOVER1 = "/sctmover"
     SLASH_SCTMOVER2 = "/sctm"
     SlashCmdList.SCTMOVER = function()
+        -- The game blocks addons from opening the options in combat.
+        if InCombatLockdown() then
+            UIErrorsFrame:AddMessage(ERR_NOT_IN_COMBAT, 1, 0.1, 0.1)
+            return
+        end
         Settings.OpenToCategory(category:GetID())
     end
 end)
