@@ -5,8 +5,14 @@ self = false
 exclude_files = { ".release/", "libs/" }
 
 globals = {
-  "SCTMoverDB",
+  "SLASH_SCTMOVER1",
+  "SlashCmdList",
 }
 
 read_globals = {
+  "C_AddOns",
+  "C_CVar",
+  "CreateFrame",
+  "MinimalSliderWithSteppersMixin",
+  "Settings",
 }
