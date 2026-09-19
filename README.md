@@ -9,6 +9,10 @@ Open the game options and pick SCT Mover under AddOns. `/sctmover` (or `/sctm`) 
 - **Target text.** Drag the "Target height" slider to lift or lower the text above your target (damage, heals, misses). The reset button below it puts it back where the game had it. This only changes two game settings (`WorldTextScreenY_v2` and `WorldTextCritScreenY_v2`), so your choice stays even if you turn the addon off.
 - **Self text.** Tick "Show self text above other UI elements" if other parts of your UI cover the text that scrolls near your character. "Move" (or `/sctm move`) closes the options and gives you a box to drag to where that text should start, with sample text so you can see the result. The "Horizontal" and "Vertical" sliders set exact values, and "Reset position" puts it back. These settings are shared by all your characters, unless you tick "Use separate self text settings for this character".
 
+## Languages
+
+English, plus machine translations for German, French, Spanish, Brazilian Portuguese, Russian, Korean, and Simplified and Traditional Chinese. If a line reads wrong in your language, a fix to the file in `locales/` is very welcome.
+
 ## Develop
 
 Symlink the repo into the Forever AddOns folder as `SCTMover`
