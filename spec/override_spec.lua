@@ -1,5 +1,5 @@
 local ns = {}
-assert(loadfile("Override.lua"))("SCTMover", ns)
+assert(loadfile("src/Override.lua"))("SCTMover", ns)
 local Override = ns.Override
 
 local DEFAULTS = { raised = false, offsetX = 0, offsetY = 0 }

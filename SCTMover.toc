@@ -9,8 +9,8 @@
 ## X-Website: https://github.com/dbspringer/sct-mover
 
 locales/enUS.lua
-Offset.lua
-Override.lua
-SelfText.lua
-MoveMode.lua
+src/Offset.lua
+src/Override.lua
+src/SelfText.lua
+src/MoveMode.lua
 SCTMover.lua
