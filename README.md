@@ -1,12 +1,13 @@
 # SCT Mover
 
-A small WoW: Forever addon that moves the damage and healing numbers above your target up or down. It's handy when nameplates hide the numbers.
+A small WoW: Forever addon that moves combat text out from behind your UI. It lifts the text above your target clear of nameplates, and it can draw the text near your character on top of other UI elements.
 
 ## Use
 
-Open the game options, pick SCT Mover under AddOns, and drag the "Target height" slider. `/sctmover` (or `/sctm`) takes you straight there. The reset button below it puts the numbers back where the game had them.
+Open the game options and pick SCT Mover under AddOns. `/sctmover` (or `/sctm`) takes you straight there.
 
-The addon only changes two game settings (`WorldTextScreenY_v2` and `WorldTextCritScreenY_v2`), so your choice stays even if you turn the addon off.
+- **Target text.** Drag the "Target height" slider to lift or lower the text above your target (damage, heals, misses). The reset button below it puts it back where the game had it. This only changes two game settings (`WorldTextScreenY_v2` and `WorldTextCritScreenY_v2`), so your choice stays even if you turn the addon off.
+- **Self text.** Tick "Show self text above other UI elements" if other parts of your UI cover the text that scrolls near your character.
 
 ## Develop
 

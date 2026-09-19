@@ -2,7 +2,7 @@ local ns = {}
 assert(loadfile("Offset.lua"))("SCTMover", ns)
 local Offset = ns.Offset
 
-describe("Target Numbers offset", function()
+describe("Target Text offset", function()
     -- 16001 has 0 for both defaults, so the game can't show this. Retail has
     -- used a gap between them.
     local HIT_DEFAULT, CRIT_DEFAULT = 0.015, 0.0275

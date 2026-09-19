@@ -1,11 +1,13 @@
 ## Interface: 16001
 ## Title: SCT Mover
-## Notes: Moves the damage and healing numbers above your target up or down.
+## Notes: Moves combat text out from behind nameplates and other UI elements.
 ## Author: KidMoxie
 ## Version: @project-version@
+## SavedVariables: SCTMoverDB
 ## X-License: MIT
 ## X-Website: https://github.com/dbspringer/sct-mover
 
 locales/enUS.lua
 Offset.lua
+SelfText.lua
 SCTMover.lua
