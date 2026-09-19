@@ -118,7 +118,7 @@ local function AddTargetTextSection(panel, anchor)
     end
 end
 
-local function AddSelfTextSection(panel, anchor)
+local function AddSelfTextSection(panel, anchor, openOptions)
     local header = AddSectionHeader(panel, anchor, L["Self text"])
     local description = AddBodyText(
         panel,
@@ -154,17 +154,24 @@ local function AddSelfTextSection(panel, anchor)
     -- The checkbox sits 4 to the left of the text column.
     horizontalLabel:SetPoint("TOPLEFT", raised, "BOTTOMLEFT", 4, -24)
 
-    local function OnOffsetChanged()
-        SelfText.SetOffset(horizontal.Slider:GetValue(), vertical.Slider:GetValue())
-    end
-    horizontal:RegisterCallback("OnValueChanged", OnOffsetChanged, panel)
-    vertical:RegisterCallback("OnValueChanged", OnOffsetChanged, panel)
+    -- Each slider writes only its own direction. A refresh sets the sliders
+    -- one after the other, and the first change would otherwise save the
+    -- second slider's stale value over an Offset that the Marker set.
+    horizontal:RegisterCallback("OnValueChanged", function(_, offsetX)
+        SelfText.SetOffset(offsetX, SelfText.GetSettings().offsetY)
+    end, panel)
+    vertical:RegisterCallback("OnValueChanged", function(_, offsetY)
+        SelfText.SetOffset(SelfText.GetSettings().offsetX, offsetY)
+    end, panel)
 
     local move = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
     move:SetPoint("TOPLEFT", verticalLabel, "BOTTOMLEFT", 0, -30)
     move:SetText(L["Move"])
     move:SetWidth(move:GetTextWidth() + 40)
-    move:SetScript("OnClick", MoveMode.Start)
+    move:SetScript("OnClick", function()
+        -- Done brings the player back here to fine-tune with the sliders.
+        MoveMode.Start(openOptions)
+    end)
 
     local reset = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
     reset:SetPoint("LEFT", move, "RIGHT", 10, 0)
@@ -208,7 +215,13 @@ local function RegisterSettings()
     header:SetText(title)
 
     local targetBottom, refreshTargetText = AddTargetTextSection(panel, header)
-    local _, refreshSelfText = AddSelfTextSection(panel, targetBottom)
+    -- The category exists only after the panel is complete.
+    local category
+    local function OpenOptions()
+        Settings.OpenToCategory(category:GetID())
+    end
+
+    local _, refreshSelfText = AddSelfTextSection(panel, targetBottom, OpenOptions)
 
     -- The panel calls this each time it shows the category.
     panel.OnRefresh = function()
@@ -216,7 +229,7 @@ local function RegisterSettings()
         refreshSelfText()
     end
 
-    local category = Settings.RegisterCanvasLayoutCategory(panel, title)
+    category = Settings.RegisterCanvasLayoutCategory(panel, title)
     Settings.RegisterAddOnCategory(category)
     return category, title
 end

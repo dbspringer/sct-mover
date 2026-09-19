@@ -15,6 +15,9 @@ local SAMPLE_HEIGHT = 25
 
 local marker, sampleFrame, sampleScroll, sampleRise
 
+-- What the Done button does after Move Mode ends, if anything.
+local onDone
+
 -- The Marker anchors the way Blizzard anchors Self Text, top centre to the
 -- bottom centre of the WorldFrame, so the two agree at any UI scale.
 local function PlaceMarker()
@@ -62,7 +65,13 @@ local function CreateMarker()
     done:SetPoint("TOP", marker, "BOTTOM", 0, -4)
     done:SetText(DONE)
     done:SetWidth(done:GetTextWidth() + 40)
-    done:SetScript("OnClick", MoveMode.Stop)
+    done:SetScript("OnClick", function()
+        local afterDone = onDone
+        MoveMode.Stop()
+        if afterDone then
+            afterDone()
+        end
+    end)
 
     -- The addon draws the Sample Text itself. A message that addon code sends
     -- through CombatText:AddMessage leaves tainted fields on Blizzard's frame,
@@ -93,7 +102,9 @@ function MoveMode.IsActive()
     return marker ~= nil and marker:IsShown()
 end
 
-function MoveMode.Start()
+-- whenDone runs after the player clicks Done. It does not run when combat or
+-- the slash command ends Move Mode.
+function MoveMode.Start(whenDone)
     if InCombatLockdown() then
         UIErrorsFrame:AddMessage(ERR_NOT_IN_COMBAT, 1, 0.1, 0.1)
         return
@@ -109,6 +120,7 @@ function MoveMode.Start()
     -- The options cover the middle of the screen, where the text starts.
     HideUIPanel(SettingsPanel)
 
+    onDone = whenDone
     PlaceMarker()
     local _, scaleY = SelfText.GetScreenScales()
     sampleRise:SetOffset(0, SAMPLE_RISE * scaleY)
@@ -121,6 +133,7 @@ function MoveMode.Stop()
     if MoveMode.IsActive() then
         sampleScroll:Stop()
         marker:Hide()
+        onDone = nil
     end
 end
 
