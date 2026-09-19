@@ -245,6 +245,16 @@ local function RegisterSettings()
 
     local _, refreshSelfText = AddSelfTextSection(panel, targetBottom, OpenOptions)
 
+    -- For bug reports: which build, and which translation file is in use.
+    -- A checkout that the packager hasn't touched still has the raw token.
+    local version = C_AddOns.GetAddOnMetadata(addonName, "Version")
+    if version:find("^@") then
+        version = "dev"
+    end
+    local footer = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    footer:SetPoint("BOTTOMLEFT", 7, 16)
+    footer:SetText(L["Version %s | Locale: %s"]:format(version, GetLocale()))
+
     -- The panel calls this each time it shows the category.
     panel.OnRefresh = function()
         refreshTargetText()
