@@ -22,3 +22,5 @@ read_globals = {
   "Settings",
   "UIErrorsFrame",
 }
+
+files["spec"] = { std = "+busted" }
