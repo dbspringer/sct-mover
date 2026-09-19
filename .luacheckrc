@@ -6,6 +6,7 @@ exclude_files = { ".release/", "libs/" }
 
 globals = {
   "SLASH_SCTMOVER1",
+  "SLASH_SCTMOVER2",
   "SlashCmdList",
 }
 

@@ -64,6 +64,7 @@ frame:SetScript("OnEvent", function()
     local category = RegisterSettings()
 
     SLASH_SCTMOVER1 = "/sctmover"
+    SLASH_SCTMOVER2 = "/sctm"
     SlashCmdList.SCTMOVER = function()
         Settings.OpenToCategory(category:GetID())
     end
