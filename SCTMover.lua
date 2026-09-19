@@ -22,10 +22,10 @@ end
 
 local function RegisterSettings()
     local title = C_AddOns.GetAddOnMetadata(addonName, "Title")
-    local category = Settings.RegisterVerticalLayoutCategory(title)
+    local category, layout = Settings.RegisterVerticalLayoutCategory(title)
 
-    -- The CVar is the source of truth: the addon saves nothing, and the
-    -- panel's Defaults button restores the default that the client reports.
+    -- The CVar is the source of truth: the addon saves nothing, and a reset
+    -- restores the default that the client reports.
     local defaultPercent = (tonumber(C_CVar.GetCVarDefault(HIT_CVAR)) or 0) * 100
     local setting = Settings.RegisterProxySetting(
         category,
@@ -47,6 +47,13 @@ local function RegisterSettings()
         options,
         L["Moves the damage and healing numbers above your target up or down. Use it when nameplates hide the numbers."]
     )
+
+    -- The panel's own Defaults button also offers to reset every game
+    -- setting, so the category has a reset that touches only this slider.
+    local addSearchTags = false
+    layout:AddInitializer(CreateSettingsButtonInitializer("", RESET_TO_DEFAULT, function()
+        setting:SetValueToDefault()
+    end, nil, addSearchTags))
 
     Settings.RegisterAddOnCategory(category)
     return category

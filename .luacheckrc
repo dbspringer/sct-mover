@@ -14,6 +14,8 @@ read_globals = {
   "C_AddOns",
   "C_CVar",
   "CreateFrame",
+  "CreateSettingsButtonInitializer",
   "MinimalSliderWithSteppersMixin",
+  "RESET_TO_DEFAULT",
   "Settings",
 }
