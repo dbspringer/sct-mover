@@ -132,7 +132,24 @@ local function AddSelfTextSection(panel, anchor, openOptions)
     local disabledNote = AddBodyText(panel, description, L["Self text is off in the game options."])
     disabledNote:SetFontObject("GameFontRed")
 
+    -- Set after the controls exist. The Character Override swaps the settings
+    -- under all of them.
+    local refresh
+
+    -- First in the section, because it decides whose settings the other
+    -- controls show. It covers this section only: Target Text lives in CVars.
+    local overridden = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
+    overridden:SetScript("OnClick", function(self)
+        SelfText.SetOverridden(self:GetChecked())
+        refresh()
+    end)
+
+    local overriddenLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    overriddenLabel:SetPoint("LEFT", overridden, "RIGHT", 4, 0)
+    overriddenLabel:SetText(L["Use separate self text settings for this character"])
+
     local raised = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
+    raised:SetPoint("TOPLEFT", overridden, "BOTTOMLEFT", 0, -4)
     raised:SetScript("OnClick", function(self)
         SelfText.SetRaised(self:GetChecked())
     end)
@@ -182,7 +199,7 @@ local function AddSelfTextSection(panel, anchor, openOptions)
         vertical:SetValue(0)
     end)
 
-    return move, function()
+    refresh = function()
         local enabled = SelfText.IsEnabled()
         local current = SelfText.GetSettings()
         horizontal:SetValue(current.offsetX)
@@ -194,13 +211,18 @@ local function AddSelfTextSection(panel, anchor, openOptions)
         local labelFont = enabled and "GameFontNormal" or "GameFontDisable"
         horizontalLabel:SetFontObject(labelFont)
         verticalLabel:SetFontObject(labelFont)
-        raised:ClearAllPoints()
-        raised:SetPoint("TOPLEFT", enabled and description or disabledNote, "BOTTOMLEFT", -4, -16)
+        overridden:ClearAllPoints()
+        overridden:SetPoint("TOPLEFT", enabled and description or disabledNote, "BOTTOMLEFT", -4, -16)
+        overridden:SetChecked(SelfText.IsOverridden())
+        overridden:SetEnabled(enabled)
+        overriddenLabel:SetFontObject(enabled and "GameFontHighlight" or "GameFontDisable")
         raised:SetChecked(current.raised)
         raised:SetEnabled(enabled)
         raisedLabel:SetFontObject(enabled and "GameFontHighlight" or "GameFontDisable")
         disabledNote:SetShown(not enabled)
     end
+
+    return move, refresh
 end
 
 -- A canvas category, because the panel's list view comes with a Defaults

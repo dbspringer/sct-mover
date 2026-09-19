@@ -5,6 +5,7 @@ self = false
 exclude_files = { ".release/", "libs/" }
 
 globals = {
+  "SCTMoverCharDB",
   "SCTMoverDB",
   "SLASH_SCTMOVER1",
   "SLASH_SCTMOVER2",

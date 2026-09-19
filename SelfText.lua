@@ -1,5 +1,6 @@
 local addonName, ns = ...
 local Offset = ns.Offset
+local Override = ns.Override
 
 -- Applies the saved Self Text settings to Blizzard's CombatText frame.
 local SelfText = {}
@@ -19,9 +20,19 @@ local HOLD_SECONDS = 1e6
 
 local shiftGroup, shift
 
--- Every read of the Self Text settings goes through here.
+-- Every read of the Self Text settings goes through here: the character's
+-- own settings with the Character Override on, the account's otherwise.
 function SelfText.GetSettings()
-    return SCTMoverDB.selfText
+    return Override.Select(SCTMoverDB, SCTMoverCharDB)
+end
+
+function SelfText.IsOverridden()
+    return Override.IsEnabled(SCTMoverCharDB)
+end
+
+function SelfText.SetOverridden(overridden)
+    Override.SetEnabled(SCTMoverDB, SCTMoverCharDB, overridden)
+    SelfText.Apply()
 end
 
 -- Blizzard places Self Text on a reference screen and scales it to the
@@ -105,13 +116,8 @@ frame:SetScript("OnEvent", function(_, event, loadedAddon)
         end
     elseif loadedAddon == addonName then
         SCTMoverDB = SCTMoverDB or {}
-        SCTMoverDB.selfText = SCTMoverDB.selfText or {}
-        -- A table from an older version lacks the newer keys.
-        for key, value in pairs(DEFAULTS) do
-            if SCTMoverDB.selfText[key] == nil then
-                SCTMoverDB.selfText[key] = value
-            end
-        end
+        SCTMoverCharDB = SCTMoverCharDB or {}
+        Override.Prepare(SCTMoverDB, SCTMoverCharDB, DEFAULTS)
         SelfText.Apply()
     elseif loadedAddon == "Blizzard_CombatText" and SCTMoverDB then
         SelfText.Apply()
