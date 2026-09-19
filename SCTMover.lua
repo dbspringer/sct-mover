@@ -101,7 +101,7 @@ local function AddTargetTextSection(panel, anchor)
 
     local reset = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
     reset:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -30)
-    reset:SetText(RESET_TO_DEFAULT)
+    reset:SetText(L["Reset position"])
     reset:SetWidth(reset:GetTextWidth() + 40)
     reset:SetScript("OnClick", function()
         -- Write first. A slider that already shows 0 fires no change, and the

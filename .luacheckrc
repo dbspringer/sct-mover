@@ -5,7 +5,6 @@ self = false
 exclude_files = { ".release/", "libs/" }
 
 globals = {
-  "CombatText",
   "SCTMoverDB",
   "SLASH_SCTMOVER1",
   "SLASH_SCTMOVER2",
@@ -15,15 +14,15 @@ globals = {
 read_globals = {
   "C_AddOns",
   "C_CVar",
+  "CombatText",
   "CreateFrame",
   "CreateMinimalSliderFormatter",
   "ERR_NOT_IN_COMBAT",
   "InCombatLockdown",
   "MinimalSliderWithSteppersMixin",
-  "RESET_TO_DEFAULT",
   "Settings",
   "UIErrorsFrame",
-  "hooksecurefunc",
+  "WorldFrame",
   "nop",
 }
 
