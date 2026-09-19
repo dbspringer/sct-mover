@@ -29,6 +29,11 @@ end
 
 -- After a drag the Marker hangs off UIParent. Measure its top centre from the
 -- bottom centre of the WorldFrame again, in the Marker's own units.
+-- The scales come from the WorldFrame's size while the point is in Marker
+-- units. That looks like a mix-up, but it is the exact reverse of PlaceMarker,
+-- which copies Blizzard: a number from the WorldFrame's size, used as an
+-- offset in the units of a UIParent child. Checked in game at a UI scale
+-- other than 1: a dropped Marker stays put, and the real text starts at it.
 local function ReadMarker()
     local toMarkerUnits = WorldFrame:GetEffectiveScale() / marker:GetEffectiveScale()
     local x = marker:GetCenter() - WorldFrame:GetCenter() * toMarkerUnits
@@ -65,6 +70,9 @@ local function CreateMarker()
     done:SetPoint("TOP", marker, "BOTTOM", 0, -4)
     done:SetText(DONE)
     done:SetWidth(done:GetTextWidth() + 40)
+    -- The clamp covers only the Marker's own box. Stretch it down over the
+    -- button, so a drag to the bottom edge can't hide the way out.
+    marker:SetClampRectInsets(0, 0, 0, -(4 + done:GetHeight()))
     done:SetScript("OnClick", function()
         local afterDone = onDone
         MoveMode.Stop()
