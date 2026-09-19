@@ -22,3 +22,6 @@ jobs:
       - uses: BigWigsMods/packager@e50a250f8705041e40f2fa1ddcb280a686d65aa0 # v2.6.1
         env:
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+          # The packager skips an upload when its key is empty, so a secret that
+          # isn't set yet does no harm.
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
