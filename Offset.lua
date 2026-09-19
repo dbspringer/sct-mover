@@ -25,3 +25,24 @@ end
 function Offset.ToScreenUnits(offsetX, offsetY, scaleX, scaleY)
     return offsetX * scaleX, offsetY * scaleY
 end
+
+-- Blizzard starts Self Text at the centre of its reference screen. The ranges
+-- put every point of that screen in reach, and the sliders use them too.
+Offset.REFERENCE_WIDTH, Offset.REFERENCE_HEIGHT = 1024, 768
+Offset.MAX_X, Offset.MAX_Y = 512, 384
+local START_Y = 384
+
+-- Where the Marker goes for an Offset: a point in screen units, measured from
+-- the bottom centre of the WorldFrame, the way Blizzard anchors Self Text.
+function Offset.ToMarkerPoint(offsetX, offsetY, scaleX, scaleY)
+    return offsetX * scaleX, (START_Y + offsetY) * scaleY
+end
+
+local function RoundAndClamp(value, max)
+    return math.max(-max, math.min(max, math.floor(value + 0.5)))
+end
+
+-- The Offset for a point the player dragged the Marker to.
+function Offset.FromMarkerPoint(x, y, scaleX, scaleY)
+    return RoundAndClamp(x / scaleX, Offset.MAX_X), RoundAndClamp(y / scaleY - START_Y, Offset.MAX_Y)
+end

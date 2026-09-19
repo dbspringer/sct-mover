@@ -41,3 +41,37 @@ describe("Self Text offset", function()
         assert.are.equal(187.5, y)
     end)
 end)
+
+describe("Marker", function()
+    -- Derek's screen: 1365 by 768, so only the horizontal scale is off 1.
+    local SCALE_X, SCALE_Y = 1365 / 1024, 1
+
+    it("sits at the centre of the screen for an Offset of zero, where Blizzard starts Self Text", function()
+        local x, y = Offset.ToMarkerPoint(0, 0, SCALE_X, SCALE_Y)
+        assert.are.equal(0, x)
+        assert.are.equal(384, y)
+    end)
+
+    it("gives back the Offset that placed it", function()
+        for _, scales in ipairs({ { 1, 1 }, { SCALE_X, SCALE_Y }, { 2.5, 1.875 } }) do
+            for _, offset in ipairs({ { 0, 0 }, { -250, 40 }, { 512, -384 }, { 7, 333 } }) do
+                local x, y = Offset.ToMarkerPoint(offset[1], offset[2], scales[1], scales[2])
+                local offsetX, offsetY = Offset.FromMarkerPoint(x, y, scales[1], scales[2])
+                assert.are.equal(offset[1], offsetX)
+                assert.are.equal(offset[2], offsetY)
+            end
+        end
+    end)
+
+    it("gives whole numbers, because the sliders move in steps of 1", function()
+        local offsetX, offsetY = Offset.FromMarkerPoint(100.4, 500.6, 1, 1)
+        assert.are.equal(100, offsetX)
+        assert.are.equal(117, offsetY)
+    end)
+
+    it("stays inside the range of the sliders when the player drags it off the screen", function()
+        local offsetX, offsetY = Offset.FromMarkerPoint(-5000, 5000, 1, 1)
+        assert.are.equal(-512, offsetX)
+        assert.are.equal(384, offsetY)
+    end)
+end)

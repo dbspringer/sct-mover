@@ -7,15 +7,12 @@ ns.SelfText = SelfText
 
 local ENABLED_CVAR = "enableFloatingCombatText"
 local RAISED_STRATA = "HIGH"
+local DEFAULT_STRATA = "MEDIUM"
 
 local DEFAULTS = { raised = false, offsetX = 0, offsetY = 0 }
 
 -- The strata that Blizzard gave the frame, read before the first change.
 local defaultStrata
-
--- Blizzard places Self Text on a 1024 by 768 reference screen and scales it to
--- the WorldFrame. The Offset uses the same reference units.
-local REFERENCE_WIDTH, REFERENCE_HEIGHT = 1024, 768
 
 -- A very long hold, and the group loops, so the shift never runs out.
 local HOLD_SECONDS = 1e6
@@ -25,6 +22,12 @@ local shiftGroup, shift
 -- Every read of the Self Text settings goes through here.
 function SelfText.GetSettings()
     return SCTMoverDB.selfText
+end
+
+-- Blizzard places Self Text on a reference screen and scales it to the
+-- WorldFrame. These are the two factors.
+function SelfText.GetScreenScales()
+    return WorldFrame:GetWidth() / Offset.REFERENCE_WIDTH, WorldFrame:GetHeight() / Offset.REFERENCE_HEIGHT
 end
 
 -- False when the player turned Self Text off in the game options.
@@ -51,9 +54,7 @@ local function ApplyOffset(offsetX, offsetY)
     if offsetX == 0 and offsetY == 0 then
         return
     end
-    shift:SetOffset(Offset.ToScreenUnits(
-        offsetX, offsetY, WorldFrame:GetWidth() / REFERENCE_WIDTH, WorldFrame:GetHeight() / REFERENCE_HEIGHT
-    ))
+    shift:SetOffset(Offset.ToScreenUnits(offsetX, offsetY, SelfText.GetScreenScales()))
     shiftGroup:Play()
 end
 
@@ -68,6 +69,15 @@ function SelfText.Apply()
     CombatText:SetFrameStrata(settings.raised and RAISED_STRATA or defaultStrata)
 
     ApplyOffset(settings.offsetX, settings.offsetY)
+end
+
+-- The strata Self Text draws in, for the Sample Text to match. The frame can
+-- be absent, and Blizzard's frame takes its strata from UIParent then.
+function SelfText.GetStrata()
+    if SelfText.GetSettings().raised then
+        return RAISED_STRATA
+    end
+    return defaultStrata or DEFAULT_STRATA
 end
 
 function SelfText.SetRaised(raised)

@@ -10,4 +10,5 @@
 locales/enUS.lua
 Offset.lua
 SelfText.lua
+MoveMode.lua
 SCTMover.lua
