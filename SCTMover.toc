@@ -1,4 +1,4 @@
-## Interface: 16001
+## Interface: 16001, 20506
 ## Title: SCT Mover
 ## Notes: Moves combat text out from behind nameplates and other UI elements.
 ## Author: KidMoxie

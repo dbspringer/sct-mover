@@ -1,6 +1,6 @@
 # SCT Mover - Scrolling Combat Text Mover
 
-A simple WoW: Forever addon to allow you to move your scrolling combat text where you choose. Your font, your float mode, and every other combat text setting stay the way you set them.
+A simple WoW addon for Forever and TBC Anniversary to allow you to move your scrolling combat text where you choose. Your font, your float mode, and every other combat text setting stay the way you set them.
 
 ## What it does
 
@@ -24,7 +24,7 @@ Open the game options and pick SCT Mover under AddOns, or type `/sctm` (or `/sct
 
 ## Good to know
 
-- Built for WoW: Forever (the 1.60 client). Other versions of WoW aren't supported yet.
+- Built for WoW: Forever (the 1.60 client) and TBC Anniversary (the 2.5 client). Other versions of WoW aren't supported yet.
 - Target text can only move up and down. The game has no setting for left and right.
 - Self text has to be turned on in the game's own options for the self text settings to do anything.
 
@@ -38,8 +38,9 @@ Open an issue at [github.com/dbspringer/sct-mover](https://github.com/dbspringer
 
 ## Develop
 
-Symlink the repo into the Forever AddOns folder as `SCTMover`
-(`_classic_beta_/Interface/AddOns`). Lint with `luacheck .`, run the specs with
+Symlink the repo as `SCTMover` into the AddOns folder of each client you test
+(`_classic_beta_/Interface/AddOns` for Forever, `_anniversary_/Interface/AddOns`
+for TBC Anniversary). Lint with `luacheck .`, run the specs with
 `busted` (on Lua 5.1 or LuaJIT, since that's what WoW runs), and package with
 the BigWigs packager. Releases are plain numbers that go up by one each time
 (`1`, `2`, `3`), and pushing that number as a tag cuts the release.
