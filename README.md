@@ -26,6 +26,7 @@ Open the game options and pick SCT Mover under AddOns, or type `/sctm` (or `/sct
 
 - Built for WoW: Forever (the 1.60 client) and TBC Anniversary (the 2.5 client). Other versions of WoW aren't supported yet.
 - Target text can only move up and down. The game has no setting for left and right.
+- Target text always draws behind nameplates. The game gives addons no way to change that, so lift it with "Target height" until it clears the plate.
 - Self text has to be turned on in the game's own options for the self text settings to do anything.
 
 ## Languages
