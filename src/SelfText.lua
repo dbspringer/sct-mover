@@ -46,7 +46,7 @@ function SelfText.IsEnabled()
     return C_CVar.GetCVarBool(ENABLED_CVAR)
 end
 
--- In this client, combat amounts are secret values, and tainted code can't
+-- In Forever, combat amounts are secret values, and tainted code can't
 -- compare them. Any Lua field an addon writes on CombatText (textLocations,
 -- for one) taints Blizzard's AddMessage, and every combat message then fails
 -- with an error. A Translation animation moves how the frame draws, and it

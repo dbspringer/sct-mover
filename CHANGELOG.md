@@ -1,5 +1,9 @@
 # Changelog
 
+## 2
+
+- SCT Mover now runs on TBC Anniversary too, with the same options as on Forever
+
 ## 1
 
 First release, for WoW: Forever (the 1.60 client).

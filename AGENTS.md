@@ -1,7 +1,10 @@
 # sct-mover
 
-A WoW: Forever addon that moves the position of the scrolling combat text.
-Forever is the `_classic_beta_` client (1.60.x, Interface 16001).
+A WoW addon that moves the position of the scrolling combat text. It supports two
+clients from one TOC:
+
+- Forever, the `_classic_beta_` client (1.60.x, Interface 16001).
+- TBC Anniversary, the `_anniversary_` client (2.5.x, Interface 20506).
 
 ## Agent skills
 

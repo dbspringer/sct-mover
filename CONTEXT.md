@@ -1,6 +1,6 @@
 # SCT Mover
 
-A WoW: Forever addon that changes where combat text appears on screen. It moves the game's own text; it never draws text itself.
+A WoW addon for Forever and TBC Anniversary that changes where combat text appears on screen. It moves the game's own text; it never draws text itself.
 
 ## Language
 
